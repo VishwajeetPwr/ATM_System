@@ -16,7 +16,7 @@ Python OOP ATM System
 ## Installation & Usage
 
     1. Clone the repository:
-        git clone [https://github.com/VishwajeetPwr/ATM_System.git](https://github.com/VishwajeetPwr/atm-system.git)
+        git clone [https://github.com/VishwajeetPwr/ATM_System.git](https://github.com/VishwajeetPwr/ATM_System.git)
     2. Run the application:
         python main.py
 ### Learning Outcomes
