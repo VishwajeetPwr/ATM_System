@@ -1,6 +1,13 @@
 import json
 import os
 
+try: 
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    SCRIPT_DIR = os.getcwd()
+
+DB_PATH = os.path.join(SCRIPT_DIR, "ATM_Database.json")
+
 class Account:
     def __init__(self, name, pin, balance):
         self.name = name.title()
@@ -34,6 +41,7 @@ class ATM:
     def __init__(self):
         self.accounts = {}
         self.current_user = None
+        self.load_data()
 
     def save_data(self):
         data = {}
@@ -41,22 +49,23 @@ class ATM:
             data[name] = account_obj.to_dict()
         
         try:
-            with open("atm_db.json", "w") as f:
+            with open(DB_PATH, "w") as f:
                 json.dump(data, f, indent=4)
         except Exception as e:
             print(f"Error saving data: {e}")
 
     def load_data(self):
         try:
-            with open("atm_db.json", "r") as f:
-                data = json.load(f)
+            if os.path.exists(DB_PATH):
+                with open(DB_PATH, "r") as f:
+                    data = json.load(f)
                 
             # Convert Dict -> Object
-            for name, info in data.items():
-                # Re-creating the object from the saved data
-                recreated_acc = Account(info['name'], info['pin'], info['balance'])
-                self.accounts[name] = recreated_acc
-        except FileNotFoundError:
+                for name, info in data.items():
+                    # Re-creating the object from the saved data
+                    recreated_acc = Account(info['name'], info['pin'], info['balance'])
+                    self.accounts[name] = recreated_acc
+        except (FileNotFoundError, json.JSONDecodeError):
             # File doesn't exist on first run. That's okay.
             self.accounts = {}
 
