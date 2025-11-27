@@ -22,7 +22,27 @@ class Account:
     
     def to_dict(self):
         return {
+            "type": "Standard",
             "name": self.name.title(),
             "pin": self.pin,
             "balance": self.balance
         }
+    
+class Saving_Accounts(Account):
+    def __init__(self, name, pin, balance,interest_rate = 0.05):
+        super().__init__(name, pin, balance)
+        self.interest_rate = interest_rate
+
+    def deposit(self,amount):
+        if amount > 0:
+            Interest = amount * self.interest_rate
+            Total = amount + Interest
+            self.balance += Total
+            print(f"Deposited: ${amount} + ${Interest} (Interest). New Balance: ${self.balance}")
+        else:
+            print("Error: Deposit amount must be positive.")
+
+    def to_dict(self):
+        data = super().to_dict()
+        data["type"] = "Savings"
+        return data

@@ -9,7 +9,7 @@ except NameError:
 
 DB_PATH = os.path.join(SCRIPT_DIR, "ATM_Database.json")
 
-from Account_Class import Account
+from Account_Class import Account, Saving_Accounts
 
 class ATM:
     def __init__(self):
@@ -36,22 +36,27 @@ class ATM:
 
                 # Convert Dict -> Object
                 for name, info in data.items():
+                    if info.get("type") == "Savings":
+                        recreated_acc = Saving_Accounts(info['name'], info['pin'], info['balance'])
                     # Re-creating the object from the saved data
-                    recreated_acc = Account(info["name"], info["pin"], info["balance"])
+                    else:
+                        recreated_acc = Account(info["name"], info["pin"], info["balance"])
                     self.accounts[name] = recreated_acc
         except (FileNotFoundError, json.JSONDecodeError):
             # File doesn't exist on first run. That's okay.
             self.accounts = {}
 
-    def create_account(self, name, pin, balance):
+    def create_account(self, name, pin, balance,account_type="Standard"):
         if name in self.accounts:
             print("Account already exists.")
             return
-
-        new_account = Account(name, pin, balance)
+        if account_type == 'Savings':
+            new_account = Saving_Accounts(name,pin,balance)
+        else:
+            new_account = Account(name, pin, balance)
         self.accounts[name] = new_account
         self.save_data()
-        print(f"Account created for {name} with balance {balance}")
+        print(f"{account_type} Account created for {name} with balance {balance}")
 
     def login(self, name, pin):
         if name in self.accounts:
@@ -88,7 +93,14 @@ class ATM:
                         try:
                             p = int(input("Enter PIN: "))
                             b = int(input("Initial Balance: "))
-                            self.create_account(n, p, b)
+                            print("Account Type: ")
+                            print("1. Standard")
+                            print("2. Savings(5% Interest)")
+                            type_choice = input("Select type: ")
+                            if type_choice == '2':
+                                self.create_account(n,p,b,"Savings")
+                            else:
+                                self.create_account(n,p,b,"Standard")
                         except ValueError:
                             print("Error: PIN and Balance must be numbers.")
 
