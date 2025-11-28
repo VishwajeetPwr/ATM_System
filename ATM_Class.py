@@ -34,13 +34,25 @@ class ATM:
                 with open(DB_PATH, "r") as f:
                     data = json.load(f)
 
-                # Convert Dict -> Object
                 for name, info in data.items():
+                    # 1. Extract History (or None if it's a new file)
+                    history_data = info.get("history", None)
+                    
+                    # 2. Factory Logic (Standard vs Savings)
                     if info.get("type") == "Savings":
-                        recreated_acc = Saving_Accounts(info['name'], info['pin'], info['balance'])
-                    # Re-creating the object from the saved data
+                        recreated_acc = Saving_Accounts(
+                            info['name'], 
+                            info['pin'], 
+                            info['balance'], 
+                            history=history_data # Pass history to constructor
+                        )
                     else:
-                        recreated_acc = Account(info["name"], info["pin"], info["balance"])
+                        recreated_acc = Account(
+                            info['name'], 
+                            info['pin'], 
+                            info['balance'],
+                            history=history_data # Pass history to constructor
+                        )
                     self.accounts[name] = recreated_acc
         except (FileNotFoundError, json.JSONDecodeError):
             # File doesn't exist on first run. That's okay.
@@ -120,10 +132,13 @@ class ATM:
 
             else:
                 print(f"\n--- Menu for {self.current_user.name} ---")
+                acc_type = type(self.current_user).__name__
+                print(f"Type: {acc_type}")
                 print("1. Check Balance")
                 print("2. Deposit")
                 print("3. Withdraw")
-                print("4. Logout")
+                print("4. View History")
+                print("5. Logout")
                 Action = input("What would you like to do? ")
 
                 match Action:
@@ -144,6 +159,15 @@ class ATM:
                         except ValueError:
                             print("Error: Please enter a valid number.")
                     case "4":
+                        print("\n--- Transaction History ---")
+                        history = self.current_user.get_history()
+                        if not history:
+                            print("No transactions yet.")
+                        else:
+                            for record in history:
+                                print(record)
+                        input("\nPress Enter to continue...")
+                    case "5":
                         self.logout()
                     case _:
                         print("Invalid Option")
